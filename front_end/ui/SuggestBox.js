@@ -133,10 +133,11 @@ UI.SuggestBox = class {
   }
 
   _updateWidth() {
-    if (this._hasVerticalScroll) {
-      this._element.style.width = '100vw';
-      return;
-    }
+    // this interferes with Dirac removal of max-width style in .suggest-box-horizontal CSS
+    // if (this._hasVerticalScroll) {
+    //   this._element.style.width = '100vw';
+    //   return;
+    // }
     // If there are no scrollbars, set the width to the width of the largest row.
     var maxIndex = 0;
     for (var i = 0; i < this._items.length; i++) {
@@ -272,18 +273,22 @@ UI.SuggestBox = class {
    * @param {string} query
    * @param {string} text
    * @param {string=} className
+   * @param {string=} prologue
+   * @param {string=} epilogue
    * @return {!Element}
    */
-  _createItemElement(query, text, className) {
+  _createItemElement(query, text, className, prologue, epilogue) {
     var element = createElementWithClass('div', 'suggest-box-content-item source-code ' + (className || ''));
     element.tabIndex = -1;
+    element.createChild("span", "prologue").textContent = (prologue || "").trimEnd(50);
     var displayText = text.trimEnd(50 + query.length);
     var index = displayText.toLowerCase().indexOf(query.toLowerCase());
     if (index > 0)
-      element.createChild('span').textContent = displayText.substring(0, index);
+      element.createChild('span', 'pre-query').textContent = displayText.substring(0, index);
     if (index > -1)
       element.createChild('span', 'query').textContent = displayText.substring(index, index + query.length);
-    element.createChild('span').textContent = displayText.substring(index > -1 ? index + query.length : 0);
+    element.createChild('span', 'post-query').textContent = displayText.substring(index > -1 ? index + query.length : 0);
+    element.createChild("span", "epilogue").textContent = (epilogue || "").trimEnd(50);
     element.__fullValue = text;
     element.createChild('span', 'spacer');
     element.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
@@ -522,15 +527,15 @@ UI.SuggestBox = class {
    */
   itemElement(index) {
     if (!this._elementList[index]) {
-      this._elementList[index] =
-          this._createItemElement(this._userEnteredText, this._items[index].title, this._items[index].className);
+      const item = this._items[index];
+      this._elementList[index] = this._createItemElement(this._userEnteredText, item.title, item.className, item.prologue, item.epilogue);
     }
     return this._elementList[index];
   }
 };
 
 /**
- * @typedef {!Array.<{title: string, className: (string|undefined), priority: (number|undefined)}>}
+ * @typedef {!Array.<{title: string, className: (string|undefined), priority: (number|undefined), prologue: (string|undefined), epilogue: (string|undefined)}>}
  */
 UI.SuggestBox.Suggestions;
 

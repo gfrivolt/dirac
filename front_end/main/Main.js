@@ -63,6 +63,13 @@ Main.Main = class {
    */
   _gotPreferences(prefs) {
     console.timeStamp('Main._gotPreferences');
+    // for dirac testing
+    if (Runtime.queryParam("reset_settings")) {
+      dirac.feedback("reset devtools settings");
+      console.info("DIRAC TESTING: clear devtools settings because reset_settings is present in url params");
+      window.localStorage.clear(); // also wipe-out local storage to prevent tests flakiness
+      prefs = {};
+    }
     this._createSettings(prefs);
     this._createAppUI();
   }
@@ -275,6 +282,7 @@ Main.Main = class {
     // Allow UI cycles to repaint prior to creating connection.
     setTimeout(this._initializeTarget.bind(this), 0);
     console.timeEnd('Main._showAppUI');
+    dirac.feedback("devtools ready");
   }
 
   _initializeTarget() {

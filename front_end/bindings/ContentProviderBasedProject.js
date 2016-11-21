@@ -43,7 +43,10 @@ Bindings.ContentProviderBasedProject = class extends Workspace.ProjectStore {
     super(workspace, id, type, displayName);
     /** @type {!Object.<string, !Common.ContentProvider>} */
     this._contentProviders = {};
-    workspace.addProject(this);
+    // just a temporary fix -- darwin
+    if (workspace) {
+      workspace.addProject(this);
+    }
   }
 
   /**
